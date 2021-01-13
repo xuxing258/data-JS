@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        *{margin: 0;padding:0}
+        #btu{
+            /*width: 600px;*/
+            height: 40px;
+            line-height: 40px;
+            text-align: right;
+            margin: 50px auto 0;
+        }
+        #btu input{
+            width: 80px;
+            height: 40px;
+            outline: none;
+        }
+        #map{
+            /*width: 600px;*/
+            /*height: 600px;*/
+            /*box-sizing: border-box;*/
+            border: 1px solid red;
+            margin: 0 auto ;
+            position: relative;
+        }
+        #map div{
+            position: absolute;
+        }
+        #map:before{
+            content: " ";
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: #fff;
+            width: 20px;
+            height: 20px;
+            z-index:1
+        }
+    </style>
+</head>
+<body>
+    <div id="btu">
+        <input type="button" value="开始游戏">
+        <input type="button" value="暂停游戏">
+    </div>
+    <div id="map">
+    </div>
+    <script>
+        let aBtu = document.getElementById("btu"),
+            oInput= document.querySelectorAll("input"),
+            aMap = document.getElementById("map");
+
+        //构造函数创建
+        class Init{
+            constructor(map,foodX,foodY) {
+                this.mapSiz= map,
+                this.foodX = foodX,
+                this.foodY = foodY,
+                // 开始游戏开关
+                this.off = true,
+                //食物
+                this.food = "",
+                //蛇的位置
+                this.snakeNum=[
+                    {x:2,y:0}, // 蛇头
+                    {x:1,y:0}, // 蛇身
+                    {x:0,y:0}  // 蛇尾
+                ];
+                //初始化
+                this.first(),
+                //创建食物
+                this.start(),
+                //设置蛇
+                this.snake()
+                //开始游戏
+                // this.home()
+            }
+            first(){
+                // 开始游戏
+                oInput[0].onclick= ()=> {
+                    this.off ? this.home() : false;
+                    this.off = false
+                };
+                // 暂停游戏
+                oInput[1].onclick= ()=> {
+                    this.off = true;
+                    clearInterval(this.ss)
+                };
+                //地图的大小
+                aMap.style.cssText =`width:${this.mapSiz*this.foodX}px;height:${this.mapSiz*this.foodY}px`;
+                aBtu.style.width =`${this.mapSiz*this.foodX}px`;
+            }
+            //游戏初始化
+            start(){
+                //创建食物
+                this.food = document.createElement("div");
+                // 食物位置计算           地图行列 随机
+                this.newLeft =Math.floor( Math.random()* this.mapSiz)  ;
+                this.newTop = Math.floor( Math.random()* this.mapSiz) ;
+                //食物大小 位置  颜色
+                this.food.style.cssText =`
+                    width:${this.foodX}px;height:${this.foodY}px;
+                    background:rgb(${Math.random()*200},${Math.random()*200},${Math.random()*200});
+                    left:${this.newLeft*this.foodX}px;top:${this.newTop*this.foodY}px; `;
+
+                // 将食物放到地图里面
+                aMap.appendChild(this.food)
+
+            }
+            //设置蛇
+            snake(){
+
+                //蛇走的初始方向
+                this.direction ="right";
+                //创建蛇
+                this.display =()=>{
+                    //循环蛇数据
+                    this.snakeNum.forEach((item,index)=>{
+                        // if (this.snakeNum[index].dom != undefined)return ;
+                        this.snakeDom = document.createElement("div");
+                        //保存dom节点
+                        this.snakeNum[index].dom = this.snakeDom;
+                        //设置dom节点 位置 大小 颜色
+                        this.snakeDom.style.width = this.foodX + "px";
+                        this.snakeDom.style.height = this.foodY + "px" ;
+                        this.snakeDom.style.left = item.x * this.foodX + "px" ;
+                        this.snakeDom.style.top = item.y * this.foodY + "px";
+                        this.snakeDom.style.background= `rgb(${Math.random()*200},${Math.random()*200},${Math.random()*200})` ;
+                        aMap.appendChild(this.snakeDom);
+
+                    });
+                };
+                this.display();
+                // this.run()
+            }
+            // 蛇移动
+            run(){
+
+                // 第一轮处理数据
+                for (let i=this.snakeNum.length-1;i>0;i--){
+                    this.snakeNum[i].x = this.snakeNum[i-1].x;
+                    this.snakeNum[i].y = this.snakeNum[i-1].y;
+                }
+                // 将第一项的值加+1
+                //控制方向
+                switch (this.direction){
+                    case "right":
+                        this.snakeNum[0].x += 1;
+                        break;
+                    case "left":
+                        this.snakeNum[0].x += -1;
+                        break;
+                    case "top":
+                        this.snakeNum[0].y += -1;
+                        break;
+                    case "bottom":
+                        this.snakeNum[0].y += 1;
+                        break;
+                };
+                // 按键控制蛇方向  通过关键的this.direction
+                document.onkeydown= (ev)=>{
+                    ev = ev || window.event;
+                    switch(ev.keyCode){
+                      //左
+                        case 37:
+                            if (this.direction != "right"){
+                                this.direction ="left";
+                            }
+                            break;
+                      //右
+                        case 39:
+                            if (this.direction != "left"){
+                                this.direction ="right";
+                            }
+                            break;
+                      //上
+                        case 38:
+                            if (this.direction != "bottom") {
+                                this.direction = "top";
+                            }
+                            break;
+                      //下
+                        case 40:
+                            if (this.direction != "top") {
+                                this.direction = "bottom";
+                            }
+                            break;
+                    }
+                }
+                // 处理蛇的数据
+                for (let i=0;i<this.snakeNum.length;i++){
+                    aMap.removeChild(this.snakeNum[i].dom)
+                    // this.snakeNum[i].dom.remove()
+                }
+
+                //判断吃到食物
+                if (this.snakeNum[0].x == this.newLeft && this.snakeNum[0].y == this.newTop){
+                    //添加新的食物对象
+                    this.snakeNum.push( {x:null,y:null,dom:null});
+                    // 删除以前的食物
+                    this.food.remove();
+                    // 创建新的食物
+                    this.start();
+                }
+                // 判断蛇头是否出界
+                if (this.snakeNum[0].x < 0 || this.snakeNum[0].x > this.mapSiz -1 ||this.snakeNum[0].y < 0  || this.snakeNum[0].y > this.mapSiz -1 ){
+                    this.reset()
+                    return false
+                }
+                // 判断蛇头是否和自己重合
+                for (let i = 4;i<this.snakeNum.length;i++){
+                    if (this.snakeNum[0].x  == this.snakeNum[i].x && this.snakeNum[0].y  == this.snakeNum[i].y){
+                        this.reset()
+                        return false
+                    }
+                }
+
+                //创建蛇
+                this.display();
+            }
+            // 定时器启动 蛇开始走
+            home(){
+                this.ss = setInterval(()=>{
+
+                     this.run()
+                },100)
+            }
+            //重置函数
+            reset(){
+                clearInterval(this.ss);
+                alert(`失败了,吃到了${this.snakeNum.length-3}`);
+                aMap.innerHTML = "";
+                new Init(this.mapSiz,this.foodX,this.foodY);
+            }
+        }
+
+        //初始化游戏 地图 食物w h
+        let a = new Init(30,20,20)
+    </script>
+
+
+<!--
+    初始化游戏
+        设置食物大小  w:20  h:20
+        游戏地图大小根据食物大小来  行宽30
+        设置食物位置  根据地图的行宽随机 在* 食物的w h
+        设置蛇的大小===食物大小 蛇位置
+        蛇走起来
+        控制蛇的方向
+        蛇吃到食物的
+            判断保存位置和 食物的位置是否相等
+            吃到食物重新创建食物
+            添加蛇的长度
+        判断蛇头是否出界
+        判断是否和自己重合
+
+
+
+
+-->
+</body>
+</html>

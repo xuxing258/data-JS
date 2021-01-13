@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <style>
+    body{
+      width: 100%;
+      height: 100%;
+      background: url("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1604073807185&di=84f9849592494c2dd63cd840f46758ba&imgtype=0&src=http%3A%2F%2Fimage.namedq.com%2Fuploads%2F20191231%2F11%2F1577762103-BMerXWZHuq.jpeg");
+      background-size: cover;
+      overflow: hidden;
+    }
+    #num,#time{
+      width: 100px;
+      height: 40px;
+      text-align: center;
+      line-height: 40px;
+      color: red;
+      font-size: 30px;
+      user-select: none;
+    }
+    .biu{
+      width: 96px;
+      height: 120px;
+      position: absolute;
+      bottom: 0px;
+      background-image: url("./img/ballon.png") ;
+    }
+  </style>
+</head>
+<body>
+    <div id="num">0 分</div>
+    <div id="time">60</div>
+    <audio src="./img/c.wav" id="aud"></audio>
+
+    <script>
+        let aNum = document.getElementById("num"),
+          aAud = document.getElementById("aud"),
+          aTime = document.getElementById("time");
+        let num =0,time=60;
+
+
+
+    // 气球的初始位置
+      function Ball() {
+        // 气球的位置
+          this.left = Math.random() * 1200;
+          this.bottom = 0
+          // 气球的分数
+          this.count = parseInt(Math.random() * 7) + 1;
+        // 创建
+        this.init()
+        // 爆炸
+        this.Boo()
+        //移动
+        this.move()
+      }
+
+      Ball.prototype.init =function () {
+       this.dom =document.createElement("div");
+       this.dom.className ="biu";
+       // 左右位置
+       this.dom.style.left = this.left  + "px";
+        document.body.appendChild(this.dom);
+        let x = -(this.count - 1) % 4 * 96;
+        let y = -parseInt((this.count -1) / 4)   *120;
+        // this.dom.setAttribute("style",`background-position:${x}px ${y}px;left:${this.left}px`)
+        this.dom.style.backgroundPosition = x + "px " + " " + y + "px";
+      };
+      // 气球爆炸
+      Ball.prototype.Boo = function () {
+        this.dom.onclick=function () {
+          // 执行音频
+           aud.play();
+           // 是不是要加分
+          num += this.count;
+          aNum.innerText = num +"分";
+          this.dom.remove()
+        }.bind(this)
+      };
+
+      // 往上移动
+        Ball.prototype.move =function () {
+
+          this.int= setInterval(function () {
+            // 气球数字大  移动慢
+            this.bottom += 2 * this.count;
+            this.dom.style.bottom = this.bottom + "px";
+            if (this.dom.offsetTop <= 0){
+              // 干掉自己
+              this.dom.remove();
+              // 清除定时器
+              clearInterval(this.int)
+            }
+          }.bind(this),20)
+
+        };
+
+
+  let tme = setInterval(function () {
+    time--;
+    if (time <= 0){
+      clearInterval(tme)
+    }
+    new  Ball();
+    aTime.innerText = time
+  },1000)
+
+    // removechlid()  父级 清除子集
+    </script>
+</body>
+</html>
