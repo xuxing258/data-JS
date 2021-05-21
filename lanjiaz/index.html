@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        *{margin: 0;padding: 0}
+        #box{
+            width: 600px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin: auto;
+        }
+        #box img{
+            width: 240px;
+            height: 350px;
+            margin-top: 25px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="box">
+
+</div>
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.js"></script>
+<script>
+  let result = function  () {
+    return new Promise((res,rej)=>{
+      $.ajax({
+        type:"GET",
+        url:"http://localhost:3000/img/",
+        success(val){
+          res(val)
+        }
+      });
+    })
+   };
+  
+  result().then((res)=>{
+  
+    let fream = document.createDocumentFragment();
+    res.forEach(item=>{
+      let dom = document.createElement("img");
+      dom.dataset.url = "http://"+item;
+      fream.appendChild(dom);
+    });
+    $("#box")[0].appendChild(fream);
+    init()
+  })
+
+  function init(){
+    let img = [...document.getElementsByTagName("img")];
+    let clientH = getClient()
+    img.forEach(item=>{
+      if(!item.dataset.url)return;
+        let result = clientH - item.getBoundingClientRect().top > 0;
+        if(result){
+          item.src = item.dataset.url;
+          delete item.dataset.url
+        }
+    })
+  }
+  function getClient(){
+    return  document.documentElement.clientHeight 
+  }
+  document.addEventListener("scroll",init)
+
+
+
+/*
+            图片懒加载的原理
+                1.给每个图片都设置自定义属性data-image存放 图片的真正地址
+                2.页面在滚动时  检测每个图片的位置 
+                    如果图片在浏览器的可视区域之内 那就取出图片的自定义属性data-image的值
+                    把该值赋给图片的src 这个时候图片才会根据src发起网络请求获取图片
+
+        // 图片的地址  http://47.100.98.54:9020/api/goods
+
+        //使用axios获取数据 把图片地址赋值给图片的data-image
+        async function init(){
+            let result = await axios.get('http://47.100.98.54:9020/api/goods')
+            result = result.data.data
+            //获取所有的img
+            let imgs = document.querySelectorAll('#box img')
+            console.log(imgs)
+            imgs.forEach((img,index)=>{
+                //给每个img节点设置data-image 自定义属性  值是图片的真正地址
+                img.dataset.image = result[index].picurl
+            })
+        }
+
+        // init().then((value)=>{
+        //     console.log(value)
+        //     lazyLoad()
+        // })
+        //初始化图片的data-image后  在判断图片是否在可视化区域之中
+        init().then(lazyLoad)
+
+        function lazyLoad(){
+            //获取所有的img
+            let imgs = document.querySelectorAll('#box img[data-image]')
+
+            if(!imgs.length)return
+            // console.log(imgs)
+            imgs.forEach(img=>{
+                let isIn = window.innerHeight-img.getBoundingClientRect().top>0
+                if(isIn){  
+                     //如果图片在浏览器的可视区域之内 那就取出图片的自定义属性data-image的值
+                     //把该值赋给图片的src 这个时候图片才会根据src发起网络请求获取图片
+                    // console.log(img.dataset.image)
+                    img.src = img.dataset.image //异步操作
+                    img.onload = function(){
+                        delete this.dataset.image
+                         // img.removeAttribute('data-image')
+                    }
+                }
+            })
+        }
+        // lazyLoad()  此时每个img节点的data-image属性
+        document.addEventListener('scroll',lazyLoad)
+
+
+
+*/
+
+
+</script>
+
+</body>
+</html>
