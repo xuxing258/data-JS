@@ -1,0 +1,195 @@
+*{ margin:0; padding:0; font-family:"楷体",serif;}
+li{ list-style-type: none;}
+body{
+    overflow: hidden;
+    user-select: none; /*禁止选中*/
+    -moz-user-select: -moz-none;
+    -ms-user-select: none;
+}
+/*最外层的游戏大盒子*/
+#wrap{
+    position: relative;
+    width: 512px; /*依据背景图尺寸*/
+    height: 768px;
+    margin: 20px auto;
+    background: url("../images/bg_1.jpg");
+}
+#level{
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1; /*让level界面在上方*/
+    width: 100%;
+    height: 100%;
+}
+#level h1{
+    padding: 100px 0 120px;
+    font-size: 40px;
+    line-height: 60px;
+    text-align: center;
+    color: #fff;
+}
+#level p{
+    width: 200px;
+    height: 35px;
+    margin: 30px auto;
+    line-height: 35px;
+    text-align: center;
+    background: #fff;
+    font-weight: bolder;
+    cursor: pointer;
+    border-radius: 4px;
+    letter-spacing: 4px;
+}
+#level p:hover{
+    background: rgb(77, 107, 162);
+    color: #fff;
+}
+/*游戏界面*/
+#map{
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+}
+#map .pl.enemy{
+    z-index: 9;
+}
+#map .boom{
+    z-index: 7;
+    animation: fade .8s 1;
+    animation-fill-mode: forwards;
+}
+#map .boom2{
+    z-index: 11;
+    animation: bling 2s 1;
+    animation-fill-mode: forwards;
+}
+@keyframes fade {
+    from{ opacity: 1; }
+    to{ opacity: 0; }
+}
+@keyframes bling {
+    0%{ opacity: 1; }
+    20%{ opacity: 0; }
+    40%{opacity: 1; }
+    60%{opacity: 0;}
+    80%{opacity: 1; }
+    100%{opacity: 0;}
+}
+/* 游戏分数 */
+#score{
+    display: none;
+    position: absolute;
+    top:10px;
+    left:10px;
+    color: #fff;
+    line-height: 20px;
+    font-size: 18px;
+    font-weight: bold;
+    z-index:20;
+}
+
+/* 游戏结算 */
+#settlement{
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 250px;
+    margin-top: 250px;
+    z-index:30;
+    text-align: center;
+}
+#settlement p{
+    height: 40px;
+    margin-bottom: 60px;
+    line-height: 40px;
+    color: #fff;
+    font-size: 20px;
+    text-align: center;
+}
+#settlement p span{
+    font-size: 22px;
+    font-weight : bolder;
+    font-size: 24px;
+    vertical-align: middle;
+}
+#settlement .totalscore{
+    color: red;
+}
+#settlement .evaluate{
+    color: #ffa80c;
+}
+#settlement .restart{
+    width: 120px;
+    height: 40px;
+    border: none;
+    background: rgba(255,255,255,.8);
+    font-family: "楷体";
+    font-size: 20px;
+    color: #000;
+    font-weight: bolder;
+    cursor: pointer;
+    border-radius: 4px;
+}
+#settlement .restart:hover{
+    background: white;
+}ane,
+#map .biu,
+#map .enemy,
+#map .boom,
+#map .boom2{
+    position: absolute;
+}
+#map .plane{
+    z-index: 8;
+    /* width: 70px; */
+    /* height: 70px; */
+}
+#map .biu{
+    z-index: 10;
+}
+img{
+    /* 阻止默人事件 */
+    pointer-events: none;
+}
+
+.planeDiv{
+    position: absolute; 
+    bottom: 0px; 
+    left: 45%;
+    /* transition: transform .1s; */
+    z-index: 8;
+    perspective: 1000px;
+}
+
+.exhaust{
+    position: absolute; 
+    bottom: -70px;
+    left: 0;
+    z-index: 8;
+}
+
+.bullet{
+    position: absolute; 
+    bottom: 0px; 
+    z-index: 7;
+    width: 6px;
+    height : 14px;
+    background :red;
+    border-radius:50% 50% 0 0;
+}
+.feiji{
+    width: 40px;
+    height: 40px;
+    position: absolute; 
+    left: 0;
+    top: -40px;
+  
+    background: url("../images/enemy_small.png")no-repeat center / 40px 40px;
+}

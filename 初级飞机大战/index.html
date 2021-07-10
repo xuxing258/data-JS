@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='UTF-8'>
+    <title>实战</title>
+    <link rel="stylesheet" href="./css/index.css">
+</head>
+
+<body>
+    <div id="wrap">
+        <!-- 主界面选择难度等级 -->
+        <div id="level">
+            <h1>飞机大战v1.0</h1>
+            <p>简单</p>
+            <p>中等</p>
+            <p>困难</p>
+            <p>疯狂模式</p>
+        </div>
+        <!-- 游戏界面 -->
+        <div id="map">
+            <!-- 我军飞机 -->
+            <!-- 敌军飞机1 -->
+            <!-- 敌军飞机2 -->
+            <div id="allbiu">
+                <!-- 子弹-->
+            </div>
+        </div>
+        <!-- 游戏过程的分数 -->
+        <div id="score">0</div>
+        <!-- 游戏结算/重新开始 界面-->
+        <div id="settlement">
+            <p>最终得分：<span class="totalscore">0</span></p>
+            <p>获得评价：<span class="evaluate">菜的抠脚</span></p>
+            <button class="restart">重新开始</button>
+        </div>
+    </div>
+    <script>
+      
+      class Move {
+            constructor() {
+                //wrap 
+                this.wrapAll = document.querySelector("#wrap");
+                // 页面显示
+                this.levelParent = document.querySelector("#level");
+                // 关卡
+                this.level = document.querySelectorAll("#level p");
+                // 地图
+                this.map = document.querySelector("#map");
+                // 子弹
+                this.allbiu = document.querySelector("#allbiu");
+                // 分数
+                this.score = document.querySelector("#score");
+                // 游戏结算
+                this.settlement = document.querySelector("#settlement");
+                // 重新开始
+                this.restart = settlement.querySelector(".restart");
+                //  地图移动 步数
+                this.num = 1
+                // 启动游戏
+                this.init()
+                // 分数
+                this.scoreNum = 0
+            }
+            init() {
+                // 点击关卡设置地图背景
+                this.level.forEach((item, index) => {
+                    item.onclick = function () {
+                        // 关数
+                        // this.difficulty =  index ? index * 2 : index + 1
+                        this.difficulty = 1
+                        this.index = index;
+                        // 启动设置地图背景
+                        this.mapBg(index)
+                        // 创建我军
+                        this.planeDiv = ourReturn.mergedToCreateElements(this.map)
+                        // 创建敌军
+                        this.Enemy = this.疯狂敌军(700 / (index + 1))
+              
+                    }.bind(this)
+                })
+                // 重新开始函数
+                this.restart.onclick=function(){
+                    this.restartThe()
+                }.bind(this)
+            }
+            // 重新启动
+            restartThe(){
+                this.difficulty = 1
+                // 启动设置地图背景
+                this.mapBg(this.index)
+                // 分数隐藏
+                this.settlement.style.display = "none"
+                // 创建我军
+                this.planeDiv = ourReturn.mergedToCreateElements(this.map)
+                // 创建敌军
+                this.Enemy = this.疯狂敌军(700 / (this.index + 1))
+            }
+            // 设置地图
+            mapBg(index = 0) {
+                console.log(1);
+                // 隐藏信息
+                this.levelParent.style.display = "none"
+                // 显示数据
+                this.score.style.display = "block"
+                // 生成地图
+                this.map.style.background = `url(./images/bg_${index + 1}.jpg)`
+                // 将地图进行移动
+                function spe() {
+                    // 移动速度
+                    this.num += index + 1
+                    //地图移动
+                    this.map.style.backgroundPosition = `0px ${this.num}px`
+                    requestAnimationFrame(spe.bind(this))
+                }
+                requestAnimationFrame(spe.bind(this))
+                // 控制飞机方向
+                this.planeDirection()
+            }
+            // 控制飞机方向
+            planeDirection() {
+                //飞机按键移动速度
+                this.setpX = 0;
+                this.setpY = 0
+                // 飞机是否加速
+                this.toSpeedUp = 0;
+                this.storage = this.difficulty;
+                // 键盘控制方向
+                document.onkeydown = (ev) => {
+                    // 处理兼容
+                    ev = ev || window.event
+                    //  获取按下建码
+                    let keyDown = ev.key.toLocaleLowerCase()
+                    // 判断建码值 进行打断
+                    let bol = keyDown == "w" || keyDown == "a" || keyDown == "s" || keyDown == "d" || keyDown == "enter" ;
+                    if (!bol) return;
+                    // 循环执行代代码
+                    switch (keyDown) {
+                        case "a":
+                            ourReturn.val = "a"
+                            ourReturn.mergeDirection(true, 6,"a")
+                            break;
+                        case "w":
+                            ourReturn.val = "w"
+                            ourReturn.mergeDirection(false,0,"w")
+                            this.toSpeedUp++;
+                            if (this.toSpeedUp > 5) {
+                                this.difficulty += 2;
+                                this.toSpeedUp = 0
+                                // 长按加速
+                                ourReturn.exhaust(this.planeDiv)
+                            }
+                            break;
+                        case "d":
+                            ourReturn.val = "d"
+                            this.difficulty = -1
+                            ourReturn.mergeDirection(true, -6,"d")
+                            break;
+                        case "s":
+                            ourReturn.val = "s"
+                            this.difficulty = -1
+                            ourReturn.mergeDirection(false, 0,"s")
+                            break;
+                        case "enter":
+                            ourReturn.createBullet()
+                        break;
+                    };
+
+                }
+                // 按下事件 结束位置   抬起事件开始位置
+                document.onkeyup = (ev) => {
+                    //判断按键
+                    let keyDown = ev.key.toLocaleLowerCase()
+                    // 消除氮气
+                    keyDown == "w" ? ourReturn.eliminateNitrogen() : null;
+
+                    let bol = keyDown == "w" || keyDown == "a" || keyDown == "s" || keyDown == "d" ;
+                    if (!bol) return;
+                    this.difficulty = this.storage
+                    //清除定时器
+                    clearInterval(ourReturn.time)
+                    ourReturn.time =null;
+
+                }
+            };
+            疯狂敌军(index){
+                this.dijunArr = []
+                // this.remo =  new Enemy(this.map)
+                // this.dijunArr.push(this.remo.feiji)
+                // 创建飞机
+               setInterval(()=>{
+                    this.remo =  new Enemy(this.map)
+                    this.dijunArr.push(this.remo.feiji)
+               },index)
+            }
+        }
+    // 我军创建
+    class Merge{
+          constructor(){
+            this.planeDivLeft  =0;
+            this.planeDivTop  = 0;
+            this.obj = []
+            this.calculatePlaneY =  672
+            this.calculatePlaneX = 270
+          }
+          // 我军图片
+          mergedToCreateElements(ele){
+            // 生成 位置 大小 插入到页面 
+            this.planeDiv= document.createElement("div");           
+            this.plane = document.createElement("img");
+            this.plane.src = "./images/plane_1.png"
+            this.planeDiv.className = "planeDiv"
+            this.plane.width = 80;
+            this.plane.height = 80;
+            // 插入页面
+            this.planeDiv.appendChild(this.plane)
+            ele.appendChild(this.planeDiv)
+            // 获取位置
+            this.planeDivLeft  = this.planeDiv.offsetLeft;
+            this.planeDivTop  = this.planeDiv.offsetTop;
+            return this.planeDiv
+          }
+          // 我军氮气
+          exhaust(ele){
+            // 判断氮气之前是否存在 存在就删除 不存在继续往下执行
+            this.planeExhaust ? this.planeExhaust.remove() : null;
+            this.planeExhaust = document.createElement("img");
+            this.planeExhaust.src = "./images/fire.png"
+            this.planeExhaust.className = "exhaust"
+            this.planeExhaust.width = 80;
+            this.planeExhaust.height = 80;
+            ele.appendChild(this.planeExhaust)
+          }
+         //消除我军氮气
+         eliminateNitrogen(){
+            if(this.planeExhaust)this.planeExhaust.remove()
+         }  
+         // 合并我方控制方向
+         mergeDirection(bol,num = 0){
+             // 控制移动 使用left top 最好了
+            if(ourReturn.time)return
+            this.time = setInterval(()=>{
+                // 移动速度
+                start.setpX += bol ? start.difficulty : 0
+                start.setpY += bol ? 0 : start.difficulty 
+                // 限制边界
+                start.setpX = Math.min(start.setpX,this.planeDivLeft + 40)
+                start.setpX = Math.max(start.setpX,-this.planeDivLeft - 10)
+                start.setpY = Math.min(start.setpY,this.planeDivTop + 40)
+                start.setpY = Math.max(start.setpY,-40)
+                // 移动盒子
+                start.planeDiv.style.transform = `translate(${-start.setpX}px,${-start.setpY}px) skewY(${num}deg)`
+
+                this.calculatePlaneY = 672 - start.setpY
+                if(start.setpX == 0){
+                    this.calculatePlaneX = 270
+                }else {
+                    this.calculatePlaneX = 270 - start.setpX
+                }
+
+
+            },6)
+         }
+         //创建我军子弹
+         createBullet(){
+             // 子弹
+            this.removeBullet  =  new Bullet()
+            this.obj.push(this.removeBullet.dom)
+         }
+         
+      }
+    // 子弹
+    class Bullet{
+        constructor(){
+            // 子弹位置
+            this.val = null
+            this.init()
+        }
+        init(){
+            this.dom = document.createElement("p")
+            this.dom.className = "bullet"
+            //  获取元素位置
+            this.planeDivLeft  = start.planeDiv.offsetLeft;
+            this.planeDivTop  = start.planeDiv.offsetTop;
+            start.map.appendChild(this.dom)
+            // 获取位置
+            this.interception( start.planeDiv.style.webkitTransform)
+        }
+        interception(val){
+            val = val ? val :  'translate(-0px, 0px) skewY(6deg)'
+            // 子弹位置
+            this.val = val.split("(")[1].split(",").map(item => parseInt(item))
+            this.dom.style.left = this.planeDivLeft + this.val[0] + 37 + "px"
+            this.dom.style.top = this.planeDivTop + this.val[1] -12 + "px"
+            
+            // 绑定子弹位置
+            this.dom._X = parseInt(this.dom.style.left)
+            this.dom._Y = parseInt(this.dom.style.top)
+
+
+            // 往上移动值
+            this.moveTop  = this.planeDivTop + this.val[1] -12
+            // 定时器移动 子弹
+            this.time = setInterval(()=>{
+                this.moveTop--
+                this.dom.style.top = this.moveTop + "px"
+                // 绑定子弹位置
+                this.dom._Y = this.moveTop
+            // console.log(  this.dom._Y,"子弹位置");
+
+                if(this.moveTop <= -10){
+                    clearInterval(this.time)
+                    this.dom.remove()
+
+                    // 检索数组位置   数组中查找不到 打断程序进行
+                    let inde = ourReturn.obj.indexOf( this.dom)
+                    if(inde == -1)return;
+                    ourReturn.obj.splice(inde,1)
+                }
+            },10)
+        }
+    }
+    // 敌军
+    class Enemy{
+        constructor(ele,time){
+            this.time = time
+            this.ele = ele
+            this.random = Math.random() * ele.clientWidth - 50 + 10; 
+            this.eleHeight = this.ele.clientHeight
+            this.start = -40;
+            // 创建敌军
+            this.createEnemy()
+            // 移动敌军
+            this.moveEnemy()
+        }
+        createEnemy(){
+            this.feiji = document.createElement("div")
+            this.feiji.className = "plane feiji"
+            this.feiji.style.left = this.random + "px"
+            this.feiji.style.top  = this.start++ + "px"
+            // 保存初始位置
+            this.feiji.feijiX = this.random
+            this.feiji.feijiY = this.start
+
+            // 飞机放入盒子中
+            this.ele.appendChild(this.feiji)
+        }
+        moveEnemy(){
+            // 移动飞机
+            this.removeTime = setInterval(()=>{
+                this.feiji.style.top  = this.start++ + "px"
+                this.feiji.feijiY = this.start
+
+                // console.log(this.feiji.feijiY,"敌军位置");
+                if(this.start > this.eleHeight + 20){
+                    clearInterval(this.removeTime)
+                    // 删除自身节点
+                    this.feiji.remove()
+                    // 检索数组位置
+                    let inde = start.dijunArr.indexOf(this.feiji)
+                    if(inde == -1)return;
+                    start.dijunArr.splice(inde,1)
+                }
+                 // 检测碰撞
+                 this.bolpengzhu()
+            },10)
+            
+        }
+        bolpengzhu(){
+            
+            if(ourReturn.obj.length){
+                ourReturn.obj.forEach((item,index)=>{
+                    start.dijunArr.forEach((items,indexs)=>{
+                        // item 子弹   items 敌军
+                        // 判断 x轴  子弹的x 大于 飞机的x  并且 小于 飞机的x 加 40 
+                        // 判断 y轴  子弹的y 大于 飞机的y  并且 小于 飞机的y 加 40 
+                        if( computedNumber(item._X,items.feijiX) &&  computedNumber(item._Y , items.feijiY)   ){
+
+
+                            start.score.innerText =start.scoreNum++
+
+
+                            // 删除原数组结构
+                            start.dijunArr.splice(indexs,1)
+                            ourReturn.obj.splice(index,1)
+                            // 删除元素
+                            item.remove()
+                            items.remove()
+                        }
+                        // 我军飞机位置
+                    })
+                })
+            }
+            // 判断函数
+            function computedNumber(item,items){
+                return  item  <= items + 40 &&  item >= items
+            }
+            // 判断飞机对撞
+            start.dijunArr.forEach((items,indexs)=>{
+                
+                //判断飞机碰撞
+                // console.log(items.feijiX > ourReturn.calculatePlaneX - 40 &&  items.feijiX < ourReturn.calculatePlaneX + 40);
+                // items.feijiY > ourReturn.calculatePlaneY && items.feijiY <  ourReturn.calculatePlaneY + 50 
+                if(items.feijiY > ourReturn.calculatePlaneY && items.feijiY <  ourReturn.calculatePlaneY + 50  && items.feijiX > ourReturn.calculatePlaneX - 40 &&  items.feijiX < ourReturn.calculatePlaneX + 40 ){
+                    ourReturn.planeDiv.remove()
+                    items.remove()
+                    clearInterval(this.removeTime)
+                    start.settlement.style.display = "block"
+                   
+                    // alert("游戏结束")
+                }
+
+                // 我军飞机位置
+            })
+
+        }
+
+
+
+    }
+    
+    // 启动函数
+    const  start = new Move()
+    let ourReturn  = new Merge()
+
+
+    /*
+      
+    先按下移动健  利用 按下enter的时候 保存上一次按下的值
+    先按下enter健  利用 按下移动健  保存上一次按下的值
+
+    判断保存值 
+
+
+      按下其他的上下左右时候 在进行改值
+    
+    
+    */
+    
+    </script>
+</body>
+</html>
